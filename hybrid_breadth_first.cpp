@@ -3,6 +3,7 @@
 #include <fstream>
 #include <math.h>
 #include <vector>
+#include <algorithm> 
 #include "hybrid_breadth_first.h"
 
 using namespace std;
@@ -97,6 +98,20 @@ vector< HBF::maze_s> HBF::reconstruct_path(vector< vector< vector<HBF::maze_s> >
 
 }
 
+class sorter {
+public:
+  bool operator() (HBF::maze_s left,HBF::maze_s right) {
+    double dist_left = sqrt(pow(_goal[0] - left.x, 2)  + pow(_goal[1] - left.y, 2));
+    double dist_right = sqrt(pow(_goal[0] - right.x, 2)  + pow(_goal[1] - right.y, 2));
+    return dist_left < dist_right;
+  }
+
+  sorter(vector<int> goal): _goal(goal) {};
+private:
+  vector<int> _goal;
+};
+
+
 HBF::maze_path HBF::search(vector< vector<int> > grid, vector<double> start, vector<int> goal) {
   /*
   Working Implementation of breadth first search. Does NOT use a heuristic
@@ -124,7 +139,7 @@ HBF::maze_path HBF::search(vector< vector<int> > grid, vector<double> start, vec
   bool finished = false;
   while(!opened.empty())
   {
-
+    std::sort(opened.begin(), opened.end(), sorter(goal));
     maze_s next = opened[0]; //grab first elment
     opened.erase(opened.begin()); //pop first element
 
